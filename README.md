@@ -3,7 +3,6 @@ A clone of Minesweeper using C# and WinForms
 
 
 ## Roadmap
-* Add New Game button
 * Game ends when tile with bomb is clicked
 * Right Click to flag tiles player thinks are bombs
 * Middle Click to highlight nearby unrevealed tiles
