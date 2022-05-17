@@ -5,6 +5,12 @@ namespace MinesweeperWF
     public partial class Form1 : Form
     {
 
+        //Values relating to difficulty size
+        int amountBombs = 20;
+        Size boardSize = new Size(10, 10);
+        int buttonSize = 25;
+
+        Panel gameBoard = new Panel();
 
         public struct Tile
         {
@@ -51,39 +57,50 @@ namespace MinesweeperWF
         {
             InitializeComponent();
 
-            //Values relating to difficulty size
-            int amountBombs = 20;
-            Size boardSize = new Size(10, 10);
-            int buttonSize = 25;
-
-            Panel gameBoard = new Panel();
             gameBoard.Location = new Point(100, 75);
-            gameBoard.Size = new Size(boardSize.Width*buttonSize+5, boardSize.Height*buttonSize+5);
+            gameBoard.Size = new Size(boardSize.Width * buttonSize + 5, boardSize.Height * buttonSize + 5);
             gameBoard.BorderStyle = BorderStyle.Fixed3D;
-            this.Controls.Add(gameBoard);
 
-            //Objects and containers
-            Random rnd = new Random();
+            Button newBoard = new Button();
+            newBoard.Location = new Point(205, 25);
+            newBoard.Width = buttonSize;
+            newBoard.Height = buttonSize;
+            newBoard.FlatStyle = FlatStyle.Flat;
+            this.Controls.Add(newBoard);
+            newBoard.Click += new EventHandler(NewBoard_Click);
+
+            BuildBoard(boardSize, buttonSize, amountBombs);
+            this.Controls.Add(gameBoard);
+        }
+
+
+        //Create a new board based on difficulty selected
+        public void BuildBoard(Size boardSize, int tileSize, int bombAmount)
+        {
+
             Tile[,] grid = new Tile[boardSize.Width, boardSize.Height];
+
+            Random rnd = new Random();
             List<int> bombList = new List<int>();
 
             //Prepare a list to randomly assisgn bombs to tiles of a predefined amount
-            while (bombList.Count < amountBombs)
+            while (bombList.Count < bombAmount)
             {
                 int randNum = rnd.Next(0, boardSize.Height * boardSize.Width);
-                if (!bombList.Contains(randNum)) {
+                if (!bombList.Contains(randNum))
+                {
                     bombList.Add(randNum);
                     grid[randNum % boardSize.Width, randNum / boardSize.Width].HasBomb = true;
-                    }
+                }
             }
 
             //Create tiles to fill the boardSize and assign bombs to the correlating tiles
-            for(int y = 0; y < boardSize.Height; y++)
+            for (int y = 0; y < boardSize.Height; y++)
             {
-                for(int x = 0; x < boardSize.Width; x++)
+                for (int x = 0; x < boardSize.Width; x++)
                 {
-                    grid[x,y] = new Tile(buttonSize, buttonSize, new Point(x*buttonSize, y*buttonSize), grid[x, y].NearbyBombs, grid[x,y].HasBomb);
-                    
+                    grid[x, y] = new Tile(tileSize, tileSize, new Point(x * tileSize, y * tileSize), grid[x, y].NearbyBombs, grid[x, y].HasBomb);
+
                     //If current tile is a bomb, increase the nearbybombs value of surrounding tiles
                     if (grid[x, y].HasBomb)
                     {
@@ -96,7 +113,6 @@ namespace MinesweeperWF
 
                 }
             }
-
             //Adds the buttons and labels for each tile in the grid to the control board
             //Must do this after because label text doesn't update after implemented.
             for (int y = 0; y < boardSize.Height; y++)
@@ -105,13 +121,12 @@ namespace MinesweeperWF
                 {
                     grid[x, y].Text = grid[x, y].HasBomb ? "B" : grid[x, y].NearbyBombs.ToString();
 
-                    gameBoard.Controls.Add(grid[x,y].tileButton);
-                    gameBoard.Controls.Add(grid[x,y].tileLabel);
+                    gameBoard.Controls.Add(grid[x, y].tileButton);
+                    gameBoard.Controls.Add(grid[x, y].tileLabel);
 
                     grid[x, y].tileButton.Click += new EventHandler(Tile_Click);
                 }
             }
-            //gameBoard.Refresh();
         }
 
         //Returns a list of the positions for available surrounding tiles
@@ -143,7 +158,13 @@ namespace MinesweeperWF
             return neighbors;
         }
 
+        private void NewBoard_Click(object sender, EventArgs e)
+        {
 
+            gameBoard.Controls.Clear();
+            BuildBoard(boardSize, buttonSize, amountBombs);
+        }
+        
         private void Tile_Click(object sender, EventArgs e)
         {
             Button clickedButton = (Button)sender;
