@@ -8,7 +8,7 @@ namespace MinesweeperWF
         //Values relating to difficulty size
         int amountBombs = 20;
         Size boardSize = new Size(10, 10);
-        int buttonSize = 25;
+        int buttonSize = 50;
 
         Panel gameBoard = new Panel();//gameBoard is created outside of contructor so it can be referenced easier
 
@@ -83,7 +83,8 @@ namespace MinesweeperWF
                     gameBoard.Controls.Add(grid[x, y]);
                     gameBoard.Controls.Add(grid[x, y].tileLabel);  //Must do this last because label text doesn't update after implemented.
 
-                    grid[x, y].MouseClick += (sender, MouseEventArgs) => { TileReveal_Click(sender, MouseEventArgs);  };
+                    //Used MouseUp cause MouseClick only detects Left Clicks
+                    grid[x, y].MouseUp += (sender, MouseEventArgs) => { TileReveal_Click(sender, MouseEventArgs);  };
                 }
             }
         }
@@ -135,27 +136,27 @@ namespace MinesweeperWF
             switch (e.Button)//Checks which button is pressed
             {
                 case MouseButtons.Left://Reveals the tile
-                    if (clickedButton.HasBomb)
+                    if (clickedButton.HasBomb && clickedButton.CurrentState == TileState.Unflagged)
                     {
-                        foreach (Control c in gameBoard.Controls)//if tile is a bomb, reveal all tiles/game over
+                        foreach (Control c in gameBoard.Controls)//if tile is a bomb and not flagged, reveal all tiles/game over
                         {
                             Tile t = c as Tile;
                             if (t != null)
                             {
-                                t.Reveal();
+                                t.Visible = false;
                             }
                         }
                     }
-                    else
+                    else if(clickedButton.CurrentState == TileState.Unflagged)//Allows you to click tile if it hasn't already been tagged
                     {
-                        clickedButton.Reveal();
+                        clickedButton.Visible = false;
                     }
-                    break;
+                break;
 
-                //case MouseButtons.Right:
-                //    Control ctrl = (Control)clickedButton;
-                //    ctrl.BackColor = Color.Red;
-                //    break;
+                case MouseButtons.Right://Changes the tile's flagged state
+                    IAsyncResult async = clickedButton.BeginInvoke(clickedButton.ToggleState);
+                    clickedButton.EndInvoke(async);
+                break;
             }
             
         }
