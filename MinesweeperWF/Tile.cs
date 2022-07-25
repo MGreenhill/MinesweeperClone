@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MinesweeperWF
+﻿namespace MinesweeperWF
 {
     public enum TileState { Unflagged, Flagged, Possible }//3 possible bomb states the player can mark the tile as.
 
@@ -17,35 +11,45 @@ namespace MinesweeperWF
         public bool HasBomb { get; set; }
         public bool IsRevealed { get; set; }
         public String Text { get { return tileLabel.Text; } set { tileLabel.Text = value; } }
+        public int xLocal;
+        public int yLocal;
+        public List<Tile> Neighbors { get; set; }
         
         
-        public Tile(int width, int height, Point position, bool isBomb)
+        public Tile(int width, int height, int x, int y, bool isBomb)
         {
+            //New instances
+            tileLabel = new Label();
+            Neighbors = new List<Tile> { };
+
+            //Tile positioning and size
+            xLocal = x;
+            yLocal = y;
+            Width = width - 1;
+            Height = height - 1;
+            Position = new Point(xLocal * width, yLocal * height);
+            Location = Position;
+
+            //Label positioning and size
+            tileLabel.Location = Position;
+            tileLabel.Width = Width - 3;
+            tileLabel.Height = Height - 3;
+
+            //Display setup
+            FlatStyle = FlatStyle.Flat;
             BackColor = Color.White;
+            tileLabel.BackColor = Color.LightGray;
+            tileLabel.Margin = new Padding(3);
+
+            //Bomb Setup
             CurrentState = TileState.Unflagged;
-            Width = width;
-            Height = height;
-            Position = position;
             HasBomb = false;
             HasBomb = isBomb;
             NearbyBombs = 0;
             NearbyBombs = 0;
-        
-            
-            Location = Position;
-            Width = Width - 1;
-            Height = Height - 1;
-            FlatStyle = FlatStyle.Flat;
-
-            tileLabel = new Label();
-            tileLabel.Location = Position;
-            tileLabel.Width = Width - 3;
-            tileLabel.Height = Height - 3;
-            tileLabel.BackColor = Color.LightGray;
-            tileLabel.Margin = new Padding(3);
-        
         }
     
+        //Changes the Tile's state when called
         public void ToggleState()
         {
             switch (CurrentState)
@@ -64,6 +68,61 @@ namespace MinesweeperWF
                     break;
             }
         }
+
+        //Adds any tiles nearby in 8 directions of the grid
+        public void FindNeighbors(Tile[,] tGrid)
+        {
+            List<Tuple<int, int>> possibleNeighbors = new List<Tuple<int, int>>    //List of all 8 hypothetical surrounding tiles
+            {
+                Tuple.Create(xLocal + 1, yLocal),       //Right
+                Tuple.Create(xLocal + 1, yLocal + 1),   //LowerRight
+                Tuple.Create(xLocal, yLocal + 1),       //Down
+                Tuple.Create(xLocal - 1, yLocal + 1),   //LowerLeft
+                Tuple.Create(xLocal - 1, yLocal),       //Left
+                Tuple.Create(xLocal - 1, yLocal - 1),   //UpperLeft
+                Tuple.Create(xLocal, yLocal - 1),       //Up
+                Tuple.Create(xLocal + 1, yLocal - 1)    //UpperRight
+
+            };
+
+            //Check hypothetical tiles if they're within the grid and add the corrects ones to the returned list
+            foreach (Tuple<int, int> pos in possibleNeighbors)
+            {
+                if (pos.Item1 >= 0 && pos.Item1 < tGrid.GetLength(0) && pos.Item2 >= 0 && pos.Item2 < tGrid.GetLength(1))
+                {
+                    Neighbors.Add(tGrid[pos.Item1, pos.Item2]);
+                }
+            }
+        }
+
+        //Determines how many neighbor tiles have bombs and changes text to display the amount or if this tile is a bomb
+        public void CheckBombs()
+        {
+            foreach (Tile tile in Neighbors)
+            {
+                if (tile.HasBomb) {
+                    NearbyBombs++;
+                }
+            }
+            Text = HasBomb ? "B" : NearbyBombs.ToString();
+        }
+
+        //Changes Tile's flag state.
+        public bool Reveal()
+        {
+            if (HasBomb && CurrentState == TileState.Unflagged)
+            {
+                return true;
+            }
+            //Allows you to click tile if it hasn't already been tagged
+            else if (CurrentState == TileState.Unflagged)
+            {
+                Visible = false;
+            }
+
+            return false;
+        }
+
 
     }
     
