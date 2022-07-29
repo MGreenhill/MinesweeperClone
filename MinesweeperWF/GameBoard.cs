@@ -87,9 +87,17 @@
                 Tile t = c as Tile;
                 if (t != null)
                 {
-                    t.Visible = false;
+                    t.IsRevealed = true;
+                    t.Text = t.bText;
+                    t.BackColor = Color.Pink;
                 }
             }
+        }
+
+        private void Reveal(Tile RevealedTile)
+        {
+            bool endGame = RevealedTile.Reveal();
+            if (endGame) { GameOver(); }
         }
 
         //Runs when MouseUp is detected
@@ -100,8 +108,7 @@
             {
                 //Reveals the tile and runs gameover if tile is a bomb
                 case MouseButtons.Left:
-                    bool endGame = clickedButton.Reveal();
-                    if (endGame) { GameOver();}
+                    Reveal(clickedButton);
                     break;
 
                 //Changes the tile's flagged state
@@ -115,6 +122,13 @@
                     foreach (Tile t in previewedTiles)
                     {
                         t.FlatStyle = FlatStyle.Flat;
+                    }
+                    if(previewedTiles.Count(flagged => flagged.CurrentState == TileState.Flagged) == previewedTiles.Count(bomb => bomb.HasBomb == true))
+                    {
+                        foreach(Tile t in previewedTiles.Where(tile => tile.Visible == true))
+                        {
+                            Reveal(t);
+                        }
                     }
                     break;
             }

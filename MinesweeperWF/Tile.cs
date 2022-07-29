@@ -10,7 +10,7 @@
         public int NearbyBombs { get; set; }
         public bool HasBomb { get; set; }
         public bool IsRevealed { get; set; }
-        public String Text { get { return tileLabel.Text; } set { tileLabel.Text = value; } }
+        public String bText { get; set; }
         public int xLocal;
         public int yLocal;
         public List<Tile> Neighbors { get; set; }
@@ -19,7 +19,6 @@
         public Tile(int width, int height, int x, int y, bool isBomb)
         {
             //New instances
-            tileLabel = new Label();
             Neighbors = new List<Tile> { };
 
             //Tile positioning and size
@@ -29,17 +28,9 @@
             Height = height - 1;
             Position = new Point(xLocal * width, yLocal * height);
             Location = Position;
-
-            //Label positioning and size
-            tileLabel.Location = Position;
-            tileLabel.Width = Width - 3;
-            tileLabel.Height = Height - 3;
-
             //Display setup
             FlatStyle = FlatStyle.Flat;
             BackColor = Color.White;
-            tileLabel.BackColor = Color.LightGray;
-            tileLabel.Margin = new Padding(3);
 
             //Bomb Setup
             CurrentState = TileState.Unflagged;
@@ -104,20 +95,23 @@
                     NearbyBombs++;
                 }
             }
-            Text = HasBomb ? "B" : NearbyBombs.ToString();
+            bText = HasBomb ? "B" : NearbyBombs.ToString();
         }
 
         //Changes Tile's flag state.
         public bool Reveal()
         {
-            if (HasBomb && CurrentState == TileState.Unflagged)
+            if (HasBomb && CurrentState == TileState.Unflagged && !IsRevealed)
             {
                 return true;
             }
             //Allows you to click tile if it hasn't already been tagged
-            else if (CurrentState == TileState.Unflagged)
+            else if (CurrentState == TileState.Unflagged && !IsRevealed)
             {
-                Visible = false;
+                IsRevealed = true;
+                FlatStyle = FlatStyle.System;
+                BackColor = Color.LightGray;
+                Text = bText;
             }
 
             return false;
