@@ -8,32 +8,25 @@ namespace MinesweeperWF
         Size boardSize = new Size(10, 10);
         int buttonSize = 30;
         Board gameBoard;
+        StatPanel stats;
 
 
         public Form1()
         {
             InitializeComponent();
+            stats = new StatPanel();
 
             //Gameboard setup
-            gameBoard = new Board(buttonSize, boardSize, amountBombs);
+            gameBoard = new Board(buttonSize, boardSize, amountBombs, stats);
             gameBoard.Location = new Point(100, 75);
             gameBoard.Size = new Size(boardSize.Width * buttonSize + 5, boardSize.Height * buttonSize + 5);
             this.Controls.Add(gameBoard);
 
-            //New game button setup
-            Button newBoard = new Button();
-            newBoard.Location = new Point(205, 25);
-            newBoard.Width = buttonSize;
-            newBoard.Height = buttonSize;
-            newBoard.FlatStyle = FlatStyle.Flat;
-            this.Controls.Add(newBoard);
-            newBoard.Click += new EventHandler(NewBoard_Click);
-        }
-
-
-        private void NewBoard_Click(object sender, EventArgs e)
-        {
-            gameBoard.Restart();
+            stats.Location = new Point(100, 10);
+            stats.Size = new Size(boardSize.Width * buttonSize + 5, buttonSize + 10);
+            stats.BackColor = Color.LightGray;
+            stats.StartUp(gameBoard);
+            this.Controls.Add(stats);
         }
 
     }

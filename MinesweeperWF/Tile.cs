@@ -51,7 +51,7 @@
                     break;
                 case TileState.Flagged://If the Tile is marked as Flagged, change mark to Possible flag
                     CurrentState = TileState.Possible;
-                    BackColor = Color.Yellow;
+                    BackColor = Color.DeepPink;
                     break;
                 case TileState.Possible://If the Tile is marked as Possible, remove mark
                     CurrentState = TileState.Unflagged;
@@ -109,15 +109,22 @@
             else if (CurrentState == TileState.Unflagged && !IsRevealed)
             {
                 IsRevealed = true;
-                FlatStyle = FlatStyle.System;
+                FlatStyle = FlatStyle.Flat;
                 BackColor = Color.LightGray;
                 Text = bText;
+                if(NearbyBombs == 0)
+                {
+                    foreach(Tile tile in Neighbors)
+                    {
+                        tile.Reveal();
+                    }
+                }
             }
 
             return false;
         }
 
-
+        
     }
     
 }
