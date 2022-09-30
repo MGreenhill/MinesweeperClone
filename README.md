@@ -1,8 +1,7 @@
 # MinesweeperClone
-A clone of Minesweeper using C# and WinForms
+A clone of Minesweeper using C#, WinForms, and runs on the .Net 6 framework
 
 
 ## Roadmap
-* Leaderboard with fastest times
-* Difficulty option that changes the amount of bombs and tiles on the board
-* Option to scale up the size of board for easier viewing
+* Adjust scale to better fit game elements to form.
+*Standalone release .EXE for Github

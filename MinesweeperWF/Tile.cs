@@ -5,7 +5,6 @@
     internal class Tile : Button
     {
         public TileState CurrentState;
-        public Label tileLabel;
         public Point Position { get; }
         public int NearbyBombs { get; set; }
         public bool HasBomb { get; set; }
@@ -28,6 +27,7 @@
             Height = height - 1;
             Position = new Point(xLocal * width, yLocal * height);
             Location = Position;
+
             //Display setup
             FlatStyle = FlatStyle.Flat;
             BackColor = Color.White;
@@ -98,7 +98,9 @@
             bText = HasBomb ? "B" : NearbyBombs.ToString();
         }
 
-        //Changes Tile's flag state.
+        //Changes Tile's revealed state and displays if it's a bomb or has nearby bombs
+        //Returns a boolean based on if this tile is a bomb
+        //Reveals adjacent bombs if none are bombs
         public bool Reveal()
         {
             if (HasBomb && CurrentState == TileState.Unflagged && !IsRevealed)
@@ -112,19 +114,20 @@
                 FlatStyle = FlatStyle.Flat;
                 BackColor = Color.LightGray;
                 Text = bText;
+
+                //Reveals all adjacent tiles if none are bombs
                 if(NearbyBombs == 0)
                 {
+                    Text = "";
                     foreach(Tile tile in Neighbors)
                     {
                         tile.Reveal();
                     }
                 }
             }
-
             return false;
         }
 
-        
     }
     
 }

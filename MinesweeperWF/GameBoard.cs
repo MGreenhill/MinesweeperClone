@@ -1,54 +1,109 @@
 ﻿namespace MinesweeperWF
 {
-    internal class Board : Panel
+    //Enumerators to handle game difficulty and board size
+    public enum Difficulty { Beginner, Intermediate, Expert, Custom}
+    public enum BoardScale { Normal, Large, ExtraLarge};
+
+
+    //Class creates panel to hold a grid of tiles.
+    //Generates grid with randomly assigned tiles as bombs, remain tiles display nearby bombs
+    //Create win and loss conditions
+    //Win condition creates record
+    //Board can be cleared and rebuilt
+    //Click and hover events to interact with board.
+
+    internal class GameBoard : Panel
     {
-        //Game Difficulty
-        public int amountBombs;
-        public Size boardSize;
-        public int buttonSize;
-        bool endGame = false;
-        
+        //Reference to other class objects.
+        private StatPanel stats;
+        public ScoreBoard leaderBoard = new ScoreBoard();
+
+        //Holds internal game difficulty
+        public Difficulty SkillLevel { get; set; }
+
+        //Default settings for variables
+        public int amountBombs = 0;
+        private Size boardSize = new Size(1,1);
+        public int buttonSize = 23;
+        private bool endGame = false;
 
         //Preview Tiles
-        bool tilePreview = false;
-        Tile currTile;
-        List<Tile> previewedTiles = new List<Tile> ();
-
-        //Reference to panel with timer, new game, and bombcount
-        StatPanel stats;
+        private bool tilePreview = false;
+        private Tile currTile;
+        private List<Tile> previewedTiles = new List<Tile>();
 
 
-        public Board(int sizeButton, Size sizeBoard, int bombs, StatPanel stats)
+        public GameBoard(StatPanel stats)
         {
             this.stats = stats;
-            amountBombs = bombs;
-            boardSize = sizeBoard;
-            buttonSize = sizeButton;
-
             BorderStyle = BorderStyle.Fixed3D;
-            BuildBoard(boardSize, buttonSize, amountBombs);
-
+            BuildBoard(stats.newDifficulty, stats.newScale);
         }
 
 
-
         //Create a new board based on difficulty selected
-        public void BuildBoard(Size boardSize, int tileSize, int bombAmount)
+        public void BuildBoard(Difficulty difficulty, BoardScale tileSize)
         {
+            //Assign new difficulty and adjust board layout
+            SkillLevel = difficulty;
+            switch (difficulty)
+            {
+                case Difficulty.Beginner:
+                    amountBombs = 10;
+                    boardSize = new Size(9,9);
+                    break;
+                case Difficulty.Intermediate:
+                    amountBombs = 40;
+                    boardSize = new Size(16, 16);
+                    break;
+                case Difficulty.Expert:
+                    amountBombs = 99;
+                    boardSize = new Size(30, 16);
+                    break;
+                case Difficulty.Custom:
+                    amountBombs = stats.customBombs;
+                    boardSize = stats.customSize;
+                    break;
+                default:
+                    difficulty = Difficulty.Beginner;
+                    amountBombs = 10;
+                    boardSize = new Size(9, 9);
+                    break;
+            }
+
+
+            //Change board size and position based on button size and grid size  --May separate to adjust immediately
+            switch (tileSize)
+            {
+                case BoardScale.Normal:
+                    buttonSize = 23;
+                    break;
+                case BoardScale.Large:
+                    buttonSize = 35;
+                    break;
+                case BoardScale.ExtraLarge:
+                    buttonSize = 46;
+                    break;
+
+            }
+            Size = new Size(boardSize.Width * buttonSize + 5, boardSize.Height * buttonSize + 5);
+            Location = new Point(10, 42 + stats.Height);
+
+
             //Create tiles to fill the boardSize and assign bombs to the correlating tiles
             Tile[,] grid = new Tile[boardSize.Width, boardSize.Height];
-            List<int> bombList = GetBombs(boardSize, bombAmount);
-
+            List<int> bombList = GetBombs(boardSize, amountBombs);
             for (int y = 0; y < boardSize.Height; y++)
             {
                 for (int x = 0; x < boardSize.Width; x++)
                 {
-                    grid[x, y] = new Tile(tileSize, tileSize, x, y, bombList.Contains((y * boardSize.Width) + x));
+                    grid[x, y] = new Tile(buttonSize, buttonSize, x, y, bombList.Contains((y * boardSize.Width) + x));
                 }
             }
 
-            //Calculates the amount of nearby bombs for each tile
-            //Adds the buttons and labels for each tile in the grid to the control board
+
+            //Creates list of nearby tiles for each tile
+            //Adds Tiles to the controls panel
             for (int y = 0; y < boardSize.Height; y++)
             {
                 for (int x = 0; x < boardSize.Width; x++)
@@ -57,7 +112,6 @@
                     grid[x, y].CheckBombs();
 
                     Controls.Add(grid[x, y]);
-                    Controls.Add(grid[x, y].tileLabel);  //Must do this last because label text doesn't update after implemented.
 
                     //Used MouseUp cause MouseClick only detects Left Clicks
                     grid[x, y].MouseUp += (sender, MouseEventArgs) => { TileReveal_Click(sender, MouseEventArgs); };
@@ -65,10 +119,12 @@
                     grid[x, y].MouseHover += (sender, EventArgs) => { Tile_Hover(sender, EventArgs); };
                 }
             }
+            endGame = false;
 
         }
 
-        //Prepare a list to randomly assisgn bombs to tiles of a predefined amount
+
+        //Prepare a list of randomly selected tiles to be assigned as bombs
         private static List<int> GetBombs(Size boardSize, int bombAmount)
         {
             Random rnd = new Random();
@@ -86,6 +142,7 @@
             return bombList;
         }
 
+
         //Reveals tile, checks if game has ended, and checks if game has been won.
         //Runs the tile's reveal meothod that will return if it's a bomb.
         private void Reveal(Tile revealedTile)
@@ -93,13 +150,11 @@
             endGame = revealedTile.Reveal();
             if (endGame) { GameOver(); }
             CheckWin();
-
         }
 
 
-
         //Win game when all Unrevealed tiles are bombs
-        //Bomb tiles turn blue and endgame is set to true
+        //Bomb tiles turn blue, timer stops, and endgame is set to true
         private void CheckWin()
         {
             if (Controls.OfType<Tile>().Count(t => t.IsRevealed == false) == amountBombs)
@@ -115,10 +170,29 @@
                         endGame = true;
                     }
                 }
+                //Player can save score if not playing a custom board
+                //Displays leaderboard after attempting to save score
+                if(SkillLevel != Difficulty.Custom)
+                {
+                    SaveRecord();
+                    leaderBoard.ScoresPopUp(SkillLevel);
+                }
             }
         }
 
-        //When game is over prematurely, turn off timer and reveal all tiles in red.
+        //Creates popup with prompt to save score
+        //Requests name to associate with score
+        private void SaveRecord()
+        {
+            int recTime = stats.time;
+            string message = $"Your time is {stats.time.ToString()}";
+            string title = "Congratulations!";
+            leaderBoard.AddScore(Microsoft.VisualBasic.Interaction.InputBox(message, title, "Input Your Name Here", 1, 1), recTime, SkillLevel.ToString());
+        }
+
+
+        //When game is over prematurely, turn off timer and reveal all remaining tiles in dark salmon.
+        //Remaining bombs are revealed in red.
         private void GameOver()
         {
             stats.gameTimer.Stop();
@@ -135,41 +209,54 @@
             }
         }
 
-        //Clear board and rebuild and reset endGame.
-        public void Restart()
+
+        //Ends game and clears controls from board, then clears memory.
+        public void BoardClear()
         {
+            foreach (Control c in Controls)
+            {
+                c.Dispose();
+            }
             Controls.Clear();
-            BuildBoard(boardSize, buttonSize, amountBombs);
-            endGame = false;
+            GC.Collect();
         }
 
 
-
         //Runs when MouseUp is detected
+        //Left click - reveal tile
+        //Right click - toggle tile's flagged state
+        //Middle click - ends or reveals surrounding tiles preview
         private void TileReveal_Click(object sender, MouseEventArgs e)
         {
             //Only allow tiles to be clicked if the game has not ended.
             if (!endGame) { 
+
                 //Starts timer on first click
                 if (!stats.gameTimer.Enabled)
                 {
                     stats.gameTimer.Start();
                 }
+
+
                 Tile clickedButton = (Tile)sender;
                 switch (e.Button)
                 {
-                    //Reveals the tile and runs gameover if tile is a bomb
+                    //On Left Click
+                    //Reveals the tile
                     case MouseButtons.Left:
-                        Reveal(clickedButton);
+                        Reveal(clickedButton); 
                         break;
 
+
+                    //On Right Click
                     //Changes the tile's flagged state, updates the bomb count when tile is flagged or flag is removed
-                    //Only ran if game hasn't ended and the tile hasn't been revealed.
+                    //Only ran if the tile hasn't been revealed.
                     case MouseButtons.Right:
-                        if (clickedButton.IsRevealed == false && !endGame)
+                        if (clickedButton.IsRevealed == false)
                         {
                             IAsyncResult async = clickedButton.BeginInvoke(clickedButton.ToggleState);
                             clickedButton.EndInvoke(async);
+
                             //Changes bomb count if tile is flagged or flag is removed.
                             if (clickedButton.CurrentState == TileState.Flagged)
                             {
@@ -180,8 +267,9 @@
                                 stats.BombCounterUpdate(1);
                             }
                         }
-
                         break;
+
+
                     //Ends preview and tries to reveal previewed tiles.
                     case MouseButtons.Middle:
                         tilePreview = false;
@@ -190,7 +278,7 @@
                         {
                             foreach (Tile t in previewedTiles.Where(tile => tile.Visible == true))
                             {
-                                Reveal(t);
+                                if (!endGame) { Reveal(t); }
                             }
                         }
                         //Reset look of tiles
@@ -204,8 +292,12 @@
         }
 
         //Runs when MouseDown is detected.
+        //Left click - nothing
+        //Right click - nothing
+        //Middle click - previews nearby tiles
         private void TilePreview_Click(object sender, MouseEventArgs e)
         {
+            //Only run when the game hasn't ended
             if (!endGame)
             {
                 Tile clickedButton = (Tile)sender;
@@ -237,11 +329,13 @@
             }
         }
 
+
         //Update which tiles are previewed when moving to hovering over a new tile.
         private void Tile_Hover(object sender, EventArgs e)
         {
             Tile hoveredTile = (Tile)sender;
-            //Check if still in preview and if the hovered tile has updated.  If so, clear previewedTiles and add hoveredTile and neighbors to previewedTiles.
+            //Check if still in preview and if the hovered tile has updated.
+            //If true, clear previewedTiles and add hoveredTile and neighbors to previewedTiles.
             if (tilePreview && hoveredTile != currTile)
             {
                 foreach(Tile t in previewedTiles)
