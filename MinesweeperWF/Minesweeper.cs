@@ -99,16 +99,28 @@ namespace MinesweeperWF
         private void normalScaleToolStripMenuItem_Click(object sender, EventArgs e)
         {
             stats.newScale = BoardScale.Normal;
+            gameBoard.UpdateSize(stats.newScale);
+            stats.SPResize();
+            FormResize();
+            Refresh();
+        }
+
+        private void mediumScaleToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            stats.newScale = BoardScale.Large;
+            gameBoard.UpdateSize(stats.newScale);
+            stats.SPResize();
+            FormResize();
+            Refresh();
         }
 
         private void largeScaleToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            stats.newScale = BoardScale.Large;
-        }
-
-        private void extraLargeScaleToolStripMenuItem_Click(object sender, EventArgs e)
-        {
             stats.newScale = BoardScale.ExtraLarge;
+            gameBoard.UpdateSize(stats.newScale);
+            stats.SPResize();
+            FormResize();
+            Refresh();
         }
     }
 }

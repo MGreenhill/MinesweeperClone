@@ -5,7 +5,7 @@
     internal class Tile : Button
     {
         public TileState CurrentState;
-        public Point Position { get; }
+        public Point Position { get; set; }
         public int NearbyBombs { get; set; }
         public bool HasBomb { get; set; }
         public bool IsRevealed { get; set; }
@@ -13,8 +13,9 @@
         public int xLocal;
         public int yLocal;
         public List<Tile> Neighbors { get; set; }
-        
-        
+        private float startFontSize;
+
+
         public Tile(int width, int height, int x, int y, bool isBomb)
         {
             //New instances
@@ -23,10 +24,7 @@
             //Tile positioning and size
             xLocal = x;
             yLocal = y;
-            Width = width - 1;
-            Height = height - 1;
-            Position = new Point(xLocal * width, yLocal * height);
-            Location = Position;
+            UpdatePosition(width, height);
 
             //Display setup
             FlatStyle = FlatStyle.Flat;
@@ -38,8 +36,25 @@
             HasBomb = isBomb;
             NearbyBombs = 0;
             NearbyBombs = 0;
+
+            startFontSize = Font.Size;
+            UpdateFontSize();
         }
-    
+
+        public void UpdatePosition(int width, int height)
+        {
+            Width = width - 1;
+            Height = height - 1;
+            Position = new Point(xLocal * width, yLocal * height);
+            Location = Position;
+        }
+
+        public void UpdateFontSize()
+        {
+            float fHeight = Height;
+            Font = new Font("Arial", (fHeight / 22f * startFontSize));
+        }
+
         //Changes the Tile's state when called
         public void ToggleState()
         {
@@ -114,6 +129,7 @@
                 FlatStyle = FlatStyle.Flat;
                 BackColor = Color.LightGray;
                 Text = bText;
+                
 
                 //Reveals all adjacent tiles if none are bombs
                 if(NearbyBombs == 0)

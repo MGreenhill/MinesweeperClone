@@ -21,6 +21,7 @@ namespace MinesweeperWF
         //Internal Variables
         public int time = 0;
         private int bombAmount = 0;
+        private float startFontSize;
 
         //Variables to adjust the gameboard
         public GameBoard gameBoard;
@@ -50,6 +51,7 @@ namespace MinesweeperWF
         public void StartUp(GameBoard game)
         {
             gameBoard = game;
+            startFontSize = bombCounter.Font.Size;
             SPResize();
 
             //Add labels and button to controls.
@@ -62,23 +64,30 @@ namespace MinesweeperWF
         }
 
         //resizes the elements of this panel based on the gameboard size and scale.
-        private void SPResize()
+        public void SPResize()
         {
             Size = new Size(gameBoard.Width, gameBoard.buttonSize + 10);
+            float fHeight = Height;
             //New game button setup
-            newGame.Location = new Point((Width / 2) - (gameBoard.buttonSize / 2), (Height - gameBoard.buttonSize) / 2);
-            newGame.Width = gameBoard.buttonSize;
-            newGame.Height = gameBoard.buttonSize;
-
+            newGame.Width = gameBoard.buttonSize - 1;
+            newGame.Height = gameBoard.buttonSize - 1;
+            newGame.Location = new Point((Width / 2) - (newGame.Width / 2) -3, (Height - newGame.Height) / 2);
+            
             //Bomb counter setup
-            bombCounter.Location = new Point(5, 5 + (Height - gameBoard.buttonSize) / 2);
-            bombCounter.Width = 25;
-            bombCounter.Height = 25;
+            bombCounter.Location = new Point(5, (Height - gameBoard.buttonSize) / 2);
+            bombCounter.Width = 50;
+            bombCounter.Height = 50;
+            bombCounter.Font = new Font("Arial", ((fHeight / 22f) * startFontSize));
 
             //Game timer setup
-            gameTimeDisplay.Location = new Point(Width - (gameTimeDisplay.Width + 5), 5 + (Height - gameBoard.buttonSize) / 2);
+            gameTimeDisplay.Location = new Point(Width - (gameTimeDisplay.Width + 5),(Height - gameBoard.buttonSize) / 2);
             gameTimeDisplay.Width = 50;
             gameTimeDisplay.Height = 50;
+            gameTimeDisplay.Font = new Font("Arial", ((fHeight / 22f) * startFontSize));
+            gameTimeDisplay.TextAlign = ContentAlignment.TopRight;
+
+            //GameBoard setup
+            gameBoard.Location = new Point(10, 42 + Height);
         }
 
 
@@ -123,11 +132,15 @@ namespace MinesweeperWF
         }
 
         //Every 1 second, update gameTimeDisplay.
+        //Time limit of 999
         private void TimeObserver(object sender, EventArgs e)
         {
-            time++;
-            gameTimeDisplay.Text=time.ToString();
-            gameTimeDisplay.Refresh();
+            if (time < 999)
+            {
+                time++;
+                gameTimeDisplay.Text = time.ToString();
+                gameTimeDisplay.Refresh();
+            }
         }
 
     }

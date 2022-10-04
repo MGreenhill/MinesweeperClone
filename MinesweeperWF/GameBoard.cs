@@ -50,7 +50,7 @@
             {
                 case Difficulty.Beginner:
                     amountBombs = 10;
-                    boardSize = new Size(9,9);
+                    boardSize = new Size(9, 9);
                     break;
                 case Difficulty.Intermediate:
                     amountBombs = 40;
@@ -71,22 +71,7 @@
                     break;
             }
 
-
-            //Change board size and position based on button size and grid size  --May separate to adjust immediately
-            switch (tileSize)
-            {
-                case BoardScale.Normal:
-                    buttonSize = 23;
-                    break;
-                case BoardScale.Large:
-                    buttonSize = 35;
-                    break;
-                case BoardScale.ExtraLarge:
-                    buttonSize = 46;
-                    break;
-
-            }
-            Size = new Size(boardSize.Width * buttonSize + 5, boardSize.Height * buttonSize + 5);
+            UpdateSize(tileSize);
             Location = new Point(10, 42 + stats.Height);
 
 
@@ -120,7 +105,29 @@
                 }
             }
             endGame = false;
+        }
 
+        public void UpdateSize(BoardScale tileSize)
+        {
+            //Change board size and position based on button size and grid size  --May separate to adjust immediately
+            switch (tileSize)
+            {
+                case BoardScale.Normal:
+                    buttonSize = 23;
+                    break;
+                case BoardScale.Large:
+                    buttonSize = 30;
+                    break;
+                case BoardScale.ExtraLarge:
+                    buttonSize = 40;
+                    break;
+            }
+            Size = new Size(boardSize.Width * buttonSize + 5, boardSize.Height * buttonSize + 5);
+            foreach (Tile t in Controls)
+            {
+                t.UpdatePosition(buttonSize, buttonSize);
+                t.UpdateFontSize();
+            }
         }
 
 
