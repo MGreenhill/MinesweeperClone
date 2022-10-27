@@ -89,7 +89,7 @@
             this.expertToolStripMenuItem,
             this.customToolStripMenuItem});
             this.changeDifficultyToolStripMenuItem.Name = "changeDifficultyToolStripMenuItem";
-            this.changeDifficultyToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.changeDifficultyToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
             this.changeDifficultyToolStripMenuItem.Text = "Change Difficulty";
             // 
             // beginnerToolStripMenuItem
@@ -192,27 +192,27 @@
             this.mediumScaleToolStripMenuItem,
             this.largeScaleToolStripMenuItem});
             this.scaleToolStripMenuItem.Name = "scaleToolStripMenuItem";
-            this.scaleToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.scaleToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
             this.scaleToolStripMenuItem.Text = "Scale";
             // 
             // normalScaleToolStripMenuItem
             // 
             this.normalScaleToolStripMenuItem.Name = "normalScaleToolStripMenuItem";
-            this.normalScaleToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.normalScaleToolStripMenuItem.Size = new System.Drawing.Size(119, 22);
             this.normalScaleToolStripMenuItem.Text = "Small";
             this.normalScaleToolStripMenuItem.Click += new System.EventHandler(this.normalScaleToolStripMenuItem_Click);
             // 
             // mediumScaleToolStripMenuItem
             // 
             this.mediumScaleToolStripMenuItem.Name = "mediumScaleToolStripMenuItem";
-            this.mediumScaleToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.mediumScaleToolStripMenuItem.Size = new System.Drawing.Size(119, 22);
             this.mediumScaleToolStripMenuItem.Text = "Medium";
             this.mediumScaleToolStripMenuItem.Click += new System.EventHandler(this.mediumScaleToolStripMenuItem_Click);
             // 
             // largeScaleToolStripMenuItem
             // 
             this.largeScaleToolStripMenuItem.Name = "largeScaleToolStripMenuItem";
-            this.largeScaleToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.largeScaleToolStripMenuItem.Size = new System.Drawing.Size(119, 22);
             this.largeScaleToolStripMenuItem.Text = "Large";
             this.largeScaleToolStripMenuItem.Click += new System.EventHandler(this.largeScaleToolStripMenuItem_Click);
             // 
@@ -232,6 +232,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(459, 461);
             this.Controls.Add(this.menuBar);
+            this.MaximizeBox = false;
             this.Name = "Minesweeper";
             this.Text = "Minesweeper";
             this.menuBar.ResumeLayout(false);

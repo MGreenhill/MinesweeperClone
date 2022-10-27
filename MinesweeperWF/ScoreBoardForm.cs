@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using System.Data;
 
 namespace MinesweeperWF
 {
@@ -19,7 +11,9 @@ namespace MinesweeperWF
         //When created, assigns scores to a local variable and determines current selected difficulty
         public ScoreBoardForm(Difficulty startDifficulty, List<Score> scores)
         {
-            Scores = scores;
+            Scores = scores == null ? new List<Score>() : scores;
+            this.FormBorderStyle = FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
             InitializeComponent();
             switch (startDifficulty)
             {
@@ -36,7 +30,10 @@ namespace MinesweeperWF
                     rBBeginner.Checked = true;
                     break;
             }
-            UpdateList();
+            if(Scores.Count > 0)
+            {
+                UpdateList();
+            }
         }
 
 

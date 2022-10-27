@@ -38,7 +38,7 @@ namespace MinesweeperWF
                 return;
             }
             //pull scores from JSON file
-            scores = GetScores();
+            scores = GetScores() == null ? new List<Score>() : GetScores();
         }
 
         //Overwrites the records in the file and then updates the internal list to match.

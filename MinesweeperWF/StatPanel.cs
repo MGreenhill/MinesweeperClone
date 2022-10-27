@@ -75,13 +75,13 @@ namespace MinesweeperWF
             
             //Bomb counter setup
             bombCounter.Location = new Point(5, (Height - gameBoard.buttonSize) / 2);
-            bombCounter.Width = 50;
+            bombCounter.Width = 70;
             bombCounter.Height = 50;
             bombCounter.Font = new Font("Arial", ((fHeight / 22f) * startFontSize));
 
             //Game timer setup
             gameTimeDisplay.Location = new Point(Width - (gameTimeDisplay.Width + 5),(Height - gameBoard.buttonSize) / 2);
-            gameTimeDisplay.Width = 50;
+            gameTimeDisplay.Width = 70;
             gameTimeDisplay.Height = 50;
             gameTimeDisplay.Font = new Font("Arial", ((fHeight / 22f) * startFontSize));
             gameTimeDisplay.TextAlign = ContentAlignment.TopRight;
@@ -125,10 +125,15 @@ namespace MinesweeperWF
         //When finished, calls event for parent form to resize itself.
         private void NewGame_Click(object sender, EventArgs e)
         {
-            gameBoard.BoardClear();
-            gameBoard.BuildBoard(newDifficulty, newScale);
-            Reset();
-            Invoke(GameReset);
+            if (Enabled)
+            {
+                this.Enabled = false;
+                gameBoard.BoardClear();
+                gameBoard.BuildBoard(newDifficulty, newScale);
+                Reset();
+                Invoke(GameReset);
+                this.Enabled = true;
+            }
         }
 
         //Every 1 second, update gameTimeDisplay.

@@ -182,6 +182,10 @@
                 if(SkillLevel != Difficulty.Custom)
                 {
                     SaveRecord();
+                    if(Application.OpenForms.OfType<ScoreBoardForm>().Count() == 1)
+                    {
+                        Application.OpenForms.OfType<ScoreBoardForm>().First().Close();
+                    }
                     leaderBoard.ScoresPopUp(SkillLevel);
                 }
             }
@@ -319,6 +323,10 @@
                     //Begins Preview
                     //Clears previewedTiles list and adds current tile and all nearby tiles to list.
                     case MouseButtons.Middle:
+                        foreach (Tile t in previewedTiles)
+                        {
+                            t.FlatStyle = FlatStyle.Flat;
+                        }
                         previewedTiles.Clear();
                         previewedTiles.Add(clickedButton);
                         foreach (Tile t in clickedButton.Neighbors)
